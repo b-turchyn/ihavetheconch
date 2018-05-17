@@ -6,6 +6,8 @@ var io = require('socket.io')(server);
 
 var clients = {};
 var queue = [];
+var conchHolder;
+var startTime;
 
 /**
  * Get port from environment and store in Express.
@@ -25,30 +27,54 @@ server.on('listening', onListening);
 io
   .of('/')
   .on('connection', function(socket) {
-    clients[socket.id] = {};
-
     socket.on('disconnect', function(data) {
-      clients[socket.id] = null;
+      delete clients[socket.id];
+      var index = queue.indexOf(socket.id);
+      if (index > -1) {
+        queue = queue.splice(index, 1);
+      }
       socket.broadcast.emit('clients', clients);
+      socket.broadcast.emit('queue', queue);
     });
 
     socket.on('name', function(data) {
-      clients[socket.id]['name'] = data;
+      clients[socket.id] = { 'name': data };
       socket.broadcast.emit('user-connect', data);
+      socket.emit('clients', clients);
       socket.broadcast.emit('clients', clients);
+      socket.emit('queue', queue);
+      if (conchHolder != null) {
+        socket.emit('conch-holder', conchHolder);
+      }
     });
 
     socket.on('hand-up', function() {
-      queue.push(socket.id);
-      socket.broadcast.emit('queue', queue);
+      if (queue.indexOf(socket.id) < 0) {
+        queue.push(socket.id);
+        socket.emit('queue', queue);
+        socket.broadcast.emit('queue', queue);
+      }
     });
 
     socket.on('hand-down', function() {
       var index = queue.indexOf(socket.id);
       if (index > -1) {
-        queue.splice(index, 1);
+        queue = queue.splice(index, 1);
       }
+      socket.emit('queue', queue);
       socket.broadcast.emit('queue', queue);
+    });
+
+    socket.on('pass-conch', function() {
+      if (queue.length > 0) {
+        var next = queue[0];
+        queue = queue.splice(1);
+        conchHolder = [next, new Date().getTime()]
+        socket.emit('conch-holder', conchHolder);
+        socket.broadcast.emit('conch-holder', conchHolder);
+        socket.emit('queue', queue);
+        socket.broadcast.emit('queue', queue);
+      }
     });
 
   }).on('*', function(data) {
