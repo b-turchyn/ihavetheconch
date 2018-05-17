@@ -35,6 +35,10 @@ io
       }
       socket.broadcast.emit('clients', clients);
       socket.broadcast.emit('queue', queue);
+      if (conchHolder != null && conchHolder[0] === socket.id) {
+        console.log("passing conch from disconnect");
+        passConch(socket);
+      }
     });
 
     socket.on('name', function(data) {
@@ -66,15 +70,7 @@ io
     });
 
     socket.on('pass-conch', function() {
-      if (queue.length > 0) {
-        var next = queue[0];
-        queue = queue.splice(1);
-        conchHolder = [next, new Date().getTime()]
-        socket.emit('conch-holder', conchHolder);
-        socket.broadcast.emit('conch-holder', conchHolder);
-        socket.emit('queue', queue);
-        socket.broadcast.emit('queue', queue);
-      }
+      passConch(socket);
     });
 
   }).on('*', function(data) {
@@ -88,6 +84,19 @@ io
   console.log('hand went down');
 });
 
+var passConch = function (socket) {
+  if (queue.length > 0) {
+    var next = queue[0];
+    queue = queue.splice(1);
+    socket.emit('queue', queue);
+    socket.broadcast.emit('queue', queue);
+    conchHolder = [next, new Date().getTime()]
+  } else {
+    conchHolder = null;
+  }
+  socket.emit('conch-holder', conchHolder);
+  socket.broadcast.emit('conch-holder', conchHolder);
+};
 
 /**
  * Normalize a port into a number, string, or false.

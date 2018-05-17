@@ -33,9 +33,13 @@ document.addEventListener("DOMContentLoaded", function(event) {
     });
 
     socket.on('conch-holder', function(data) {
-      $(".conch-holder").html(users[data[0]]['name']);
       timer.stopTimer();
-      timer.startTimer(data[1]);
+      if (data != null && data.length == 2) {
+        $(".conch-holder").html(users[data[0]]['name']);
+        timer.startTimer(data[1]);
+      } else {
+        $(".conch-holder").html("");
+      }
     });
   });
 
@@ -65,6 +69,7 @@ var timer = {
   stopTimer: function() {
     clearInterval(timer.timerInterval);
     timer.timerInterval = null;
+    $(".timer").html("");
   }
 };
 
