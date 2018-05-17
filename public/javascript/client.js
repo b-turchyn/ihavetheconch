@@ -59,7 +59,7 @@ var timer = {
     timer.startTime = time;
     timer.timerInterval = setInterval(function () {
       var time = new Date().getTime() - timer.startTime;
-      $(".timer").html(Math.floor(time / 100) / 10);
+      $(".timer").html(getTimeDisplay(Math.floor(time / 1000)));
     }, 100);
   },
   stopTimer: function() {
@@ -67,3 +67,19 @@ var timer = {
     timer.timerInterval = null;
   }
 };
+
+var formatTimeSegment = function (number) {
+  return String("00" + number).slice(-2);
+}
+
+function getTimeDisplay(time) {
+  var i = 0;
+  var segments = [0,0];
+
+  while((Math.floor(time / Math.pow(60, i)) > 0) || i == 0) {
+    segments[i] = Math.floor(time / Math.pow(60, i)) % 60;
+    i++;
+  }
+
+  return segments.reverse().map(formatTimeSegment).join(":");
+}
