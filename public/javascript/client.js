@@ -5,11 +5,11 @@ document.addEventListener("DOMContentLoaded", function(event) {
   document.getElementById("nameform").addEventListener("submit", function(e) {
     e.preventDefault();
 
-    socket = io.connect(window.location.href);
-
-    socket.on('connect', function() {
-      console.log('sending name');
-      socket.emit('name', document.getElementById('name').value);
+    socket = io({
+      query: {
+        name: document.getElementById('name').value,
+        room: window.location.pathname.substr(window.location.pathname.lastIndexOf("/") + 1)
+      }
     });
 
     socket.on('queue', function (data) {
@@ -62,8 +62,8 @@ var timer = {
   startTimer: function(time) {
     timer.startTime = time;
     timer.timerInterval = setInterval(function () {
-      var time = new Date().getTime() - timer.startTime;
-      $(".timer").html(getTimeDisplay(Math.floor(time / 1000)));
+      var time = Math.floor(new Date().getTime() / 1000) - timer.startTime;
+      $(".timer").html(getTimeDisplay(time));
     }, 100);
   },
   stopTimer: function() {
