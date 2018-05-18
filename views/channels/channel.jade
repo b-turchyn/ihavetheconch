@@ -1,0 +1,31 @@
+extends ../layouts/inner_page
+
+block scripts
+  script(src='/javascript/socket.io.js')
+  script(src='/javascript/client.js')
+
+
+block content
+  h1= title
+  p Welcome to #{title}
+  form(id="nameform")
+    input(type="text" id="name")
+    button(type="submit") Connect
+  hr
+  button(id="hand-up") Hand Up
+  button(id="hand-down") Hand Down
+  button(id="pass-conch") Pass Conch
+  hr
+  .row
+    .col
+      h2 Conch Holder
+      .conch-holder
+      .timer
+  .row
+    .col-6
+      h2 Users
+      ul.users
+    .col-6
+      h2 Queue
+      ol.queue
+    

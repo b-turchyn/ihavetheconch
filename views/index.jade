@@ -1,26 +1,19 @@
-extends layout
+extends layouts/front_page
 
 block content
-  h1= title
-  p Welcome to #{title}
-  form(id="nameform")
-    input(type="text" id="name")
-    button(type="submit") Connect
-  hr
-  button(id="hand-up") Hand Up
-  button(id="hand-down") Hand Down
-  button(id="pass-conch") Pass Conch
-  hr
-  .row
-    .col
-      h2 Conch Holder
-      .conch-holder
-      .timer
-  .row
-    .col-6
-      h2 Users
-      ul.users
-    .col-6
-      h2 Queue
-      ol.queue
-    
+  main(role='main')
+    .jumbotron
+      .container
+        .row
+          .col
+            h1.display-3 Conch
+            p Discourage people from talking over top of each other
+    .container
+      .row.justify-content-md-center
+        .col.col-md-6
+          form(method='POST' action='/c/new')
+            .form-group
+              label(for='channel-name') Channel Name
+              input.form-control(type='text' id='channel-name' name='channel-name' required)
+            .text-center
+              button.btn.btn-primary(type='submit') Create Channel

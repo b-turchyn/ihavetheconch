@@ -2,12 +2,9 @@ doctype html
 html
   head
     title= title
-    script(src='/javascript/socket.io.js')
-    script(src='/javascript/client.js')
+    block scripts
     script(src='https://code.jquery.com/jquery-3.3.1.min.js' integrity='sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=' crossorigin='anonymous')
     script(src='https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js')
     link(rel='stylesheet', href='https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css')
-    link(rel='stylesheet', href='/stylesheets/style.css')
   body
-    div.container
-      block content
+    block body

@@ -3,11 +3,21 @@ var debug = require('debug')('demo:server');
 var http = require('http');
 var server = http.createServer(app);
 var io = require('socket.io')(server);
+var db = require('./lib/database');
 
 var clients = {};
 var queue = [];
 var conchHolder;
 var startTime;
+
+/**
+ * Establish DB connectivity
+ */
+db.doInConn(function(conn, args, callback) {
+  conn.query('select 1 from channels', function (error, results, fields) {
+    callback(error);
+  });
+});
 
 /**
  * Get port from environment and store in Express.

@@ -5,7 +5,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
   document.getElementById("nameform").addEventListener("submit", function(e) {
     e.preventDefault();
 
-    socket = io.connect('/');
+    socket = io.connect(window.location.href);
 
     socket.on('connect', function() {
       console.log('sending name');
