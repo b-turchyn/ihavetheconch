@@ -3,6 +3,12 @@
 # https://hub.docker.com/r/library/node/tags/
 image: node:latest
 
+variables:
+  CONTAINER_NAME: b-turchyn/conch
+  CONTAINER_TEST_IMAGE: registry.gitlab.btdev.org/b-turchyn/conch:$CI_BUILD_REF_NAME
+  CONTAINER_RELEASE_IMAGE: registry.gitlab.btdev.org/b-turchyn/conch:latest
+
+
 # This folder is cached between builds
 # http://docs.gitlab.com/ce/ci/yaml/README.html#cache
 cache:
@@ -12,14 +18,26 @@ cache:
 test:
   stage: test
   script:
-    - npm install
+    - yarn
     - npm test
 
-pack:
-  stage: deploy
+build_branches:
+  stage: build
+  only: 
+    - branches
+  except:
+    - master
   script:
-    - npm install
-    - npm pack
-  artifacts:
-    paths:
-    - ./*.tgz
+    - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN registry.gitlab.btdev.org
+    - docker build --pull -t $CONTAINER_TEST_IMAGE .
+    - docker push $CONTAINER_TEST_IMAGE
+
+build_release:
+  stage: build
+  only: 
+    - branches
+  script:
+    - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN registry.gitlab.btdev.org
+    - docker build --pull -t $CONTAINER_RELEASE_IMAGE .
+    - docker push $CONTAINER_RELEASE_IMAGE
+
