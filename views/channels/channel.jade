@@ -6,15 +6,24 @@ block scripts
 
 
 block content
-  h1= title
-  p Welcome to #{title}
-  form(id="nameform")
-    input(type="text" id="name")
-    button(type="submit") Connect
+  .row
+    .col
+      h1= title
+      p Welcome to #{title}
+  .row.justify-content-md-center
+    .col.col-md-6
+      form(id="nameform")
+        .form-group
+          label(for='name') Name
+          input.form-control(type="text" id="name")
+        .text-center
+          button.btn.btn-primary.btn-block(type="submit") Connect
   hr
-  button(id="hand-up") Hand Up
-  button(id="hand-down") Hand Down
-  button(id="pass-conch") Pass Conch
+  .row
+    .col.text-center
+      button.btn.btn-secondary(id="hand-up") Hand Up
+      button.btn.btn-secondary(id="hand-down") Hand Down
+      button.btn.btn-secondary(id="pass-conch") Pass Conch
   hr
   .row
     .col

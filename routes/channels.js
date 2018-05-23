@@ -38,16 +38,16 @@ router.post('/new', function(req, res, next) {
 
 router.get('/:channel', function(req, res, next) {
   db.doInConn(function(conn, args, callback) {
-    conn.query('SELECT * FROM channels WHERE user_key = ?', [req.params.channel], function(error, results, fields) {
-      if (!error) {
-        if (results.length) {
-          res.render('channels/channel', { title: results[0]['name'] });
+    db.query(conn, 'SELECT * FROM channels WHERE user_key = ?', [req.params.channel])
+      .then(function(results) {
+        callback();
+        if (results['results'].length) {
+          res.render('channels/channel', { title: results['results'][0]['name'] });
         } else {
-          res.send('No dice');
+          res.status(404).send('No dice');
         }
-      }
-      callback(error);
-    });
+      })
+      .catch(callback);
   });
 });
 

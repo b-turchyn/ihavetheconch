@@ -9,16 +9,11 @@ router.get('/', function(req, res, next) {
 
 router.get('/:channel', function(req, res, next) {
   db.doInConn(function(conn, args, callback) {
-    conn.query('SELECT * FROM channels WHERE admin_key = ?', [req.params.channel], function(error, results, fields) {
-      if (!error) {
-        if (results.length) {
-          res.redirect('/c/' + results[0]['user_key']);
-        } else {
-          res.redirect('../');
-        }
-      }
-      callback(error);
-    });
+    db.query(conn, 'SELECT * FROM channels WHERE admin_key = ?', [req.params.channel])
+      .then(function(results) {
+        callback();
+        res.redirect('/c/' + results['results'][0]['user_key']);
+      }).catch(callback);
   });
 });
 

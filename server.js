@@ -1,5 +1,5 @@
 var app = require('./app');
-var debug = require('debug')('demo:server');
+var debug = require('debug')('conch:server');
 var http = require('http');
 var server = http.createServer(app);
 var io = require('socket.io')(server);
@@ -8,14 +8,13 @@ var db = require('./lib/database');
 var clients = {};
 var queue = [];
 var conchHolder;
-var startTime;
 
 /**
  * Establish DB connectivity
  */
 db.doInConn(function(conn, args, callback) {
-  db.query(conn, 'select 1 from channels LIMIT 0, 1')
-    .then(result => console.log(result))
+  db.query(conn, 'DELETE FROM attendees')
+    .then(result => debug('%d old attendees removed', result.results.affectedRows))
     .then(callback)
     .catch(result => callback(result));
 });
@@ -35,95 +34,80 @@ server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
 
-io
-  .on('connection', function(socket) {
-    var name = socket.handshake.query['name'],
-        channel = socket.handshake.query['room'],
-        sid = socket.id;
-    socket.join(channel);
-    console.log(sid + " connected to " + channel);
+io.on('connection', function(socket) {
+  var name = socket.handshake.query['name'],
+    channel = socket.handshake.query['room'],
+    sid = socket.id;
+  socket.join(channel);
+  debug('%s (%s)  connected to %s', name, sid, channel);
+  db.doInConn(function(conn, args, callback) {
+    Promise.all([
+      db.query(conn,
+        "insert into attendees (name, channel_id, sid) VALUES (?, (SELECT id FROM channels WHERE user_key = ?), ?)",
+        [name, channel, sid])
+      .then(function(results) {
+        io.to(channel).emit('user-connect', name);
+      }),
+      getChannelList(conn, channel).then(sendChannelList),
+      getQueue([conn, channel]).then(broadcastQueue)
+    ]).then(function() {
+      callback();
+    });
+  });
+
+  socket.on('disconnect', function(data) {
+    debug('%s (%s) disconnected from %s', name, sid, channel);
     db.doInConn(function(conn, args, callback) {
-      Promise.all([
-        db.query(conn,
-          "insert into attendees (name, channel_id, sid) VALUES (?, (SELECT id FROM channels WHERE user_key = ?), ?)",
-          [name, channel, sid])
-          .then(function(results) {
-            io.to(channel).emit('user-connect', results);
-          }),
-        getChannelList(conn, channel).then(sendChannelList),
-        getQueue([conn, channel]).then(broadcastQueue)
-      ]).then(function() {
-        callback();
-      });
+      db.query(conn, "DELETE FROM attendees WHERE sid = ?", [sid])
+        .then(function() {
+          io.to(channel).emit('user-disconnect', name);
+        })
+        .then(function() {
+          return getChannelList(conn, channel);
+        })
+        .then(sendChannelList)
+        .then(function() {
+          return getQueue([conn, channel])
+        })
+        .then(broadcastQueue)
+        .then(function() {
+          callback()
+        })
+        .catch(callback);
+      
     });
+  });
 
-    socket.on('disconnect', function(data) {
-      console.log(sid + " disconnected from " + channel);
-      db.doInConn(function(conn, args, callback) {
-        conn.query("DELETE FROM attendees WHERE sid = ?", [sid], function(error, results, fields) {
-          if (!error) {
-            io.to(channel).emit('user-disconnect', name);
-            getChannelList(conn, channel)
-              .then(sendChannelList);
-          }
-        });
-      });
-      delete clients[socket.id];
-      var index = queue.indexOf(socket.id);
-      if (index > -1) {
-        queue = queue.splice(index, 1);
-      }
-      socket.broadcast.emit('clients', clients);
-      socket.broadcast.emit('queue', queue);
-      if (conchHolder != null && conchHolder[0] === socket.id) {
-        console.log("passing conch from disconnect");
-        passConch(socket);
-      }
+  socket.on('hand-up', function() {
+    debug('%s raised hand in %s', name, channel);
+    db.doInConn(function(conn, args, callback) {
+      addToQueue(conn, sid, channel)
+        .then(getQueue)
+        .then(broadcastQueue)
+        .then(callback)
+        .catch(callback);
     });
+  });
 
-    socket.on('name', function(data) {
-      clients[socket.id] = { 'name': data };
+  socket.on('hand-down', function() {
+    debug('%s lowered hand in %s', name, channel);
+    db.doInConn(function(conn, args, callback) {
+      removeFromQueue(conn, sid, channel)
+        .then(getQueue)
+        .then(broadcastQueue)
+        .then(callback)
+        .catch(callback);
     });
+  });
 
-    socket.on('hand-up', function() {
-      console.log('hand up');
-      db.doInConn(function(conn, args, callback) {
-        addToQueue(conn, sid, channel)
-          .then(getQueue)
-          .then(broadcastQueue)
-          .then(callback)
-          .catch(callback);
-      });
-    });
-
-    socket.on('hand-down', function() {
-      db.doInConn(function(conn, args, callback) {
-        removeFromQueue(conn, sid, channel)
-          .then(getQueue)
-          .then(broadcastQueue)
-          .then(callback)
-          .catch(callback);
-      });
-    });
-
-    socket.on('pass-conch', function() {
-      passConch(socket, channel);
-    });
-
-  }).on('*', function(data) {
-  console.log(data);
-}).on('name', function (data) {
-  console.log('name got sent');
-  console.log(data);
-}).on('hand-up', function (data) {
-  console.log('hand went up');
-}).on('hand-down', function (data) {
-  console.log('hand went down');
+  socket.on('pass-conch', function() {
+    passConch(socket, channel);
+  });
 });
 
 var passConch = function (socket, channel) {
+  debug('Conch passed in %s', channel);
   db.doInConn(function(conn, args, callback) {
-    console.log('Deleting');
     Promise.all([
       deleteCurrentConchHolder(conn, channel)
         .then(passConchToUser)
@@ -185,7 +169,6 @@ function getConchHolder(args) {
         } else {
           var result = [null, 0];
           if (!error && results.length) {
-            console.log(results);
             result = [results[0]['sid'], results[0]['start_time']];
           }
           resolve(result);
@@ -279,17 +262,15 @@ function sendChannelList(args) {
       clients = args[1];
   return new Promise(function(resolve, reject) {
     io.to(channel).emit('clients', clients);
-    resolve()
+    resolve(args);
   });
 }
 
 function addToQueue(conn, sid, channel) {
-  console.log('addToQueue');
   return new Promise(function(resolve, reject) {
     conn.query("INSERT INTO queue (attendee_id) (select a.id FROM attendees a WHERE a.sid = ? AND NOT EXISTS (select 1 FROM queue q WHERE a.id = q.attendee_id));",
       [sid],
       function(error, results, fields) {
-        console.log('resolving');
         if (error) {
           reject(error);
         } else {
@@ -318,7 +299,6 @@ function removeFromQueue(conn, sid, channel) {
 function broadcastQueue(args) {
   var channel = args[0],
       queue = args[1];
-  console.log('broadcastQueue');
   return new Promise(function(resolve, reject) {
     io.to(channel).emit('queue', queue);
     resolve();
