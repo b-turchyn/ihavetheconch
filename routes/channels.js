@@ -25,13 +25,13 @@ router.post('/new', function(req, res, next) {
 
   db.doInConn(function(conn, args, callback) {
     conn.query('INSERT INTO channels SET ?', newChannel, function(error, results, fields) {
+      callback(error);
       if (!error) {
         console.log(error);
         console.log(results);
         console.log(fields);
         res.redirect('/a/' + newChannel['admin_key']);
       }
-      callback(error);
     });
   });
 

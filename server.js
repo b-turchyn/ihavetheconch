@@ -75,6 +75,10 @@ io.on('connection', function(socket) {
     })
     .then(function() {
       callback();
+    })
+    .catch((e) => {
+      socket.disconnect();
+      callback(e);
     });
   });
 
@@ -114,7 +118,7 @@ io.on('connection', function(socket) {
           callback()
         })
         .catch(callback);
-      
+
     });
   });
 
