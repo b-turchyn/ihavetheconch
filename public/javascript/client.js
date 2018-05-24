@@ -1,5 +1,6 @@
 var socket;
 var users = {};
+var conchHolder;
 
 document.addEventListener("DOMContentLoaded", function(event) {
   if (!Notification) {
@@ -54,7 +55,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
     });
 
     socket.on('queue', function (data) {
-      var queued = false;
+      var queued = conchHolder === socket.id;
       $(".queue").html("");
       data.forEach(function (user) {
         if (user === socket.id) {
@@ -90,13 +91,15 @@ document.addEventListener("DOMContentLoaded", function(event) {
     socket.on('conch-holder', function(data) {
       timer.stopTimer();
       if (data != null && data.length == 2 && data[0] !== null) {
+        conchHolder = data[0];
         if (socket.id === data[0]) {
           notify();
         }
         $(".conch-holder").html(users[data[0]]['name']);
         timer.startTimer(data[1]);
       } else {
-        $(".conch-holder").html("");
+        $(".conch-holder").html("<em>None</em>");
+        conchHolder = null;
       }
     });
   });

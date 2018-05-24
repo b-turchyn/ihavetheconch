@@ -81,7 +81,23 @@ io.on('connection', function(socket) {
   socket.on('disconnect', function(data) {
     debug('%s (%s) disconnected from %s', name, sid, channel);
     db.doInConn(function(conn, args, callback) {
-      db.query(conn, "DELETE FROM attendees WHERE sid = ?", [sid])
+      getConchHolder([conn, channel])
+        .then((result) => {
+          console.log(result);
+          if (result.length > 0 && result[0] == sid) {
+            return deleteCurrentConchHolder(conn, channel)
+              .then(passConchToUser)
+              .then(getConchHolder)
+              .then(function(result) {
+                io.to(channel).emit('conch-holder', result);
+              }).then(function() {
+                return getQueue([conn, channel]);
+              }).then(broadcastQueue);
+          }
+        })
+        .then(() => {
+          db.query(conn, "DELETE FROM attendees WHERE sid = ?", [sid])
+        })
         .then(function() {
           io.to(channel).emit('user-disconnect', name);
         })
@@ -116,7 +132,23 @@ io.on('connection', function(socket) {
   socket.on('hand-down', function() {
     debug('%s lowered hand in %s', name, channel);
     db.doInConn(function(conn, args, callback) {
-      removeFromQueue(conn, sid, channel)
+      getConchHolder([conn, channel])
+        .then((result) => {
+          console.log(result);
+          if (result.length > 0 && result[0] == sid) {
+            return deleteCurrentConchHolder(conn, channel)
+              .then(passConchToUser)
+              .then(getConchHolder)
+              .then(function(result) {
+                io.to(channel).emit('conch-holder', result);
+              }).then(function() {
+                return getQueue([conn, channel]);
+              }).then(broadcastQueue);
+          }
+        })
+        .then(() => {
+          return removeFromQueue(conn, sid, channel);
+        })
         .then(getQueue)
         .then(broadcastQueue)
         .then(callback)
