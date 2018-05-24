@@ -126,7 +126,7 @@ var timer = {
     timer.startTime = time;
     timer.timerInterval = setInterval(function () {
       var time = Math.floor(new Date().getTime() / 1000) - timer.startTime;
-      $(".timer").html(getTimeDisplay(time));
+      $(".timer").html(" - " + getTimeDisplay(time));
     }, 100);
   },
   stopTimer: function() {
