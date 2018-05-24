@@ -174,6 +174,16 @@ io.on('connection', function(socket) {
           .catch(callback);
       });
     });
+
+    socket.on('remove-all', function() {
+      db.doInConn((conn, args, callback) => {
+        removeAllFromQueue(conn, channel)
+          .then(getQueue)
+          .then(broadcastQueue)
+          .then(callback)
+          .catch(callback);
+      });
+    });
   }
 });
 
@@ -408,6 +418,20 @@ function makeAdmin(conn, channel, sid) {
 function addAllToQueue(conn, channel) {
   return new Promise((resolve, reject) => {
     conn.query("INSERT INTO queue (attendee_id) (select a.id FROM attendees a where channel_id = (select c.id from channels c where user_key = ?) AND NOT EXISTS (select 1 FROM queue q WHERE q.attendee_id = a.id))",
+      [channel],
+      (error, results, fields) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve([conn, channel]);
+        }
+      });
+  });
+}
+
+function removeAllFromQueue(conn, channel) {
+  return new Promise((resolve, reject) => {
+    conn.query("DELETE FROM queue WHERE attendee_id IN (select a.id FROM attendees a where channel_id = (select c.id from channels c where user_key = ?));",
       [channel],
       (error, results, fields) => {
         if (error) {

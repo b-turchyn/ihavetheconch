@@ -92,7 +92,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
       if (data != null && data.length == 2 && data[0] !== null) {
         conchHolder = data[0];
         if (socket.id === data[0]) {
-          notify();
+          notify("The conch has been passed to you! It's your turn to talk!");
         }
         $(".conch-holder").html(users[data[0]]['name']);
         timer.startTimer(data[1]);
@@ -121,6 +121,13 @@ document.addEventListener("DOMContentLoaded", function(event) {
     document.getElementById('add-all').addEventListener('click', function(e) {
       e.preventDefault();
       socket.emit('add-all');
+    });
+  }
+
+  if (document.getElementById('remove-all') !== null) {
+    document.getElementById('remove-all').addEventListener('click', function(e) {
+      e.preventDefault();
+      socket.emit('remove-all');
     });
   }
 });
@@ -165,7 +172,7 @@ var notify = function(msg) {
     } else {
       var notification = new Notification('Conch - ' + document.getElementsByTagName('title')[0].text, {
         icon: "https://i.imgur.com/loZX7YP.png",
-        body: "The conch has been passed to you! It's your turn to talk!"
+        body: msg
       });
     }
   }
