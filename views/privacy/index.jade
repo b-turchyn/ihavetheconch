@@ -1,0 +1,18 @@
+extends ../layouts/front_page
+
+block content
+  main(role='main')
+    .jumbotron
+      .container
+        .row
+          .col
+            h1.display-3= title
+            p What we do with your data
+    .container
+      .row
+        .col
+          ul
+            li Access logs are kept for 30 days.
+            li When you connect to a channel, you are assigned a random identifier. This changes every time you connect.
+            li Your attendance in a channel is destroyed upon disconnect.
+            li No other data is tracked.
