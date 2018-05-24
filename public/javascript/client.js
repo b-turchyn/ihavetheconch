@@ -101,6 +101,11 @@ document.addEventListener("DOMContentLoaded", function(event) {
         conchHolder = null;
       }
     });
+
+    socket.on('delete-channel', function() {
+      notify("Channel closed");
+      document.location = "/";
+    });
   });
 
   document.getElementById('hand-up').addEventListener('click', function() {
@@ -128,6 +133,15 @@ document.addEventListener("DOMContentLoaded", function(event) {
     document.getElementById('remove-all').addEventListener('click', function(e) {
       e.preventDefault();
       socket.emit('remove-all');
+    });
+  }
+
+  if (document.getElementById('delete-channel') !== null) {
+    document.getElementById('delete-channel').addEventListener('click', function(e) {
+      e.preventDefault();
+      if (confirm("Are you sure? This can not be reversed!")) {
+        socket.emit('delete-channel');
+      }
     });
   }
 });

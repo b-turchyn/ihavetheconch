@@ -184,6 +184,15 @@ io.on('connection', function(socket) {
           .catch(callback);
       });
     });
+
+    socket.on('delete-channel', () => {
+      db.doInConn((conn, args, callback) => {
+        deleteChannel(conn, channel)
+          .then(broadcastDeletion)
+          .then(callback)
+          .catch(callback);
+      });
+    });
   }
 });
 
@@ -440,5 +449,26 @@ function removeAllFromQueue(conn, channel) {
           resolve([conn, channel]);
         }
       });
+  });
+}
+
+function deleteChannel(conn, channel) {
+  return new Promise((resolve, reject) => {
+    conn.query("DELETE FROM channels where user_key = ?",
+      [channel],
+      (error, results, fields) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(channel);
+        }
+      });
+  });
+}
+
+function broadcastDeletion(channel) {
+  return new Promise(function(resolve, reject) {
+    io.to(channel).emit('delete-channel');
+    resolve();
   });
 }
