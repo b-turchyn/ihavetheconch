@@ -12,11 +12,45 @@ document.addEventListener("DOMContentLoaded", function(event) {
   document.getElementById("nameform").addEventListener("submit", function(e) {
     e.preventDefault();
 
-    socket = io({
-      query: {
-        name: document.getElementById('name').value,
-        room: window.location.pathname.substr(window.location.pathname.lastIndexOf("/") + 1)
+    if (socket && socket.connected) {
+      socket.close();
+      return;
+    }
+
+    var query = {
+      name: document.getElementById('name').value,
+      room: window.location.pathname.substr(window.location.pathname.lastIndexOf("/") + 1)
+    };
+    if (getCookie(query['room']).length > 0) {
+      query['admin'] = getCookie(query['room']);
+    }
+
+    socket = io({ query: query });
+
+    socket.on('connect', function() {
+      document.getElementById('hand-up').disabled = false;
+      document.getElementById('hand-down').disabled = false;
+      if (document.getElementById('pass-conch') !== null) {
+        document.getElementById('pass-conch').disabled = false;
       }
+      document.getElementById('connect').parentElement.classList.add("d-none");
+      document.getElementById('connect').disabled = true;
+      document.getElementById('disconnect').parentElement.classList.remove("d-none");
+      document.getElementById('disconnect').disabled = false;
+      document.getElementById('name').disabled = true;
+    });
+
+    socket.on('disconnect', function() {
+      document.getElementById('hand-up').disabled = true;
+      document.getElementById('hand-down').disabled = true;
+      if (document.getElementById('pass-conch') !== null) {
+        document.getElementById('pass-conch').disabled = true;
+      }
+      document.getElementById('disconnect').parentElement.classList.add("d-none");
+      document.getElementById('disconnect').disabled = true;
+      document.getElementById('connect').parentElement.classList.remove("d-none");
+      document.getElementById('connect').disabled = false;
+      document.getElementById('name').disabled = false;
     });
 
     socket.on('queue', function (data) {
@@ -45,7 +79,11 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
       $(".users").html("");
       Object.keys(clients).forEach(function (user) {
-        $("<li>").html(users[user]['name']).appendTo($(".users"));
+        var item = $("<li>").html(users[user]['name']);
+        if (users[user]['admin']) {
+          item.prepend("<i class='fa fa-crown mr-1'>");
+        }
+        item.appendTo($(".users"));
       });
     });
 
@@ -71,9 +109,11 @@ document.addEventListener("DOMContentLoaded", function(event) {
     socket.emit('hand-down');
   });
 
-  document.getElementById('pass-conch').addEventListener('click', function() {
-    socket.emit('pass-conch');
-  });
+  if (document.getElementById('pass-conch') !== null) {
+    document.getElementById('pass-conch').addEventListener('click', function() {
+      socket.emit('pass-conch');
+    });
+  }
 });
 
 var timer = {
@@ -119,3 +159,19 @@ var notify = function(msg) {
     });
   }
 };
+
+function getCookie(cname) {
+  var name = cname + "=";
+  var decodedCookie = decodeURIComponent(document.cookie);
+  var ca = decodedCookie.split(';');
+  for(var i = 0; i <ca.length; i++) {
+    var c = ca[i];
+    while (c.charAt(0) == ' ') {
+      c = c.substring(1);
+    }
+    if (c.indexOf(name) == 0) {
+      return c.substring(name.length, c.length);
+    }
+  }
+  return "";
+}

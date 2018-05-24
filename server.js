@@ -37,20 +37,43 @@ server.on('listening', onListening);
 io.on('connection', function(socket) {
   var name = socket.handshake.query['name'],
     channel = socket.handshake.query['room'],
+    adminKey = socket.handshake.query['admin'],
     sid = socket.id;
   socket.join(channel);
   debug('%s (%s)  connected to %s', name, sid, channel);
   db.doInConn(function(conn, args, callback) {
-    Promise.all([
-      db.query(conn,
-        "insert into attendees (name, channel_id, sid) VALUES (?, (SELECT id FROM channels WHERE user_key = ?), ?)",
-        [name, channel, sid])
-      .then(function(results) {
-        io.to(channel).emit('user-connect', name);
-      }),
-      getChannelList(conn, channel).then(sendChannelList),
-      getQueue([conn, channel]).then(broadcastQueue)
-    ]).then(function() {
+    db.query(conn,
+      "insert into attendees (name, channel_id, sid) VALUES (?, (SELECT id FROM channels WHERE user_key = ?), ?)",
+      [name, channel, sid])
+    .then(function(results) {
+      io.to(channel).emit('user-connect', name);
+    })
+    .then(() => {
+      return checkAdminStatus(conn, channel, adminKey)
+    })
+    .then((results) => {
+      if (results.results.length > 0) {
+        return makeAdmin(conn, channel, sid);
+      } else {
+        adminKey = null;
+        return Promise.resolve();
+      }
+    })
+    .then(() => {
+      getChannelList(conn, channel)
+        .then(sendChannelList);
+    })
+    .then(() => {
+      return getQueue([conn, channel])
+    })
+    .then(broadcastQueue)
+    .then(() => {
+      return getConchHolder([conn, channel])
+    })
+    .then((result) => {
+      io.to(channel).emit('conch-holder', result);
+    })
+    .then(function() {
       callback();
     });
   });
@@ -100,9 +123,11 @@ io.on('connection', function(socket) {
     });
   });
 
-  socket.on('pass-conch', function() {
-    passConch(socket, channel);
-  });
+  if (adminKey != null) {
+    socket.on('pass-conch', function() {
+      passConch(socket, channel);
+    });
+  }
 });
 
 var passConch = function (socket, channel) {
@@ -240,7 +265,7 @@ function onListening() {
 
 function getChannelList(conn, channel) {
   return new Promise(function(resolve, reject) {
-    conn.query("SELECT a.name, a.sid FROM channels c INNER JOIN attendees a ON a.channel_id = c.id WHERE c.user_key = ? ORDER BY name ASC",
+    conn.query("SELECT a.name, a.sid, a.admin FROM channels c INNER JOIN attendees a ON a.channel_id = c.id WHERE c.user_key = ? ORDER BY name ASC",
       [channel],
       function(error, results, fields) {
         if (error) {
@@ -248,7 +273,10 @@ function getChannelList(conn, channel) {
         } else {
           var clients = {};
           results.forEach(function(result) {
-            clients[result['sid']] = {name: result['name']};
+            clients[result['sid']] = {
+              name: result['name'],
+              admin: result['admin'] == 1
+            };
           });
           resolve([channel, clients]);
         }
@@ -320,4 +348,12 @@ function getQueue(args) {
       }
     );
   });
+}
+
+function checkAdminStatus(conn, channel, adminKey) {
+  return db.query(conn, "SELECT 1 FROM channels WHERE user_key = ? AND admin_key = ? LIMIT 0, 1", [channel, adminKey]);
+}
+
+function makeAdmin(conn, channel, sid) {
+  return db.query(conn, "UPDATE attendees SET admin = true WHERE channel_id = (SELECT channel_id FROM channels WHERE user_key = ?) AND sid = ?", [channel, sid]);
 }

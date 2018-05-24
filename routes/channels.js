@@ -28,13 +28,8 @@ router.post('/new', function(req, res, next) {
       newChannel = results;
       ensureUnique(conn, newChannel, 'user_key', (results) => {
         newChannel = results;
-        console.log('About to insert');
         conn.query('INSERT INTO channels SET ?', newChannel, function(error, results, fields) {
-          console.log('Query ran');
           if (!error) {
-            console.log(error);
-            console.log(results);
-            console.log(fields);
             res.redirect('/a/' + newChannel['admin_key']);
           }
           callback(error);
@@ -52,7 +47,10 @@ router.get('/:channel', function(req, res, next) {
       .then(function(results) {
         callback();
         if (results['results'].length) {
-          res.render('channels/channel', { title: results['results'][0]['name'] });
+          res.render('channels/channel', {
+            title: results['results'][0]['name'],
+            admin: req.cookies[req.params.channel] !== undefined
+          });
         } else {
           res.status(404).send('No dice');
         }
