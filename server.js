@@ -160,6 +160,16 @@ io.on('connection', function(socket) {
     socket.on('pass-conch', function() {
       passConch(socket, channel);
     });
+
+    socket.on('add-all', function() {
+      db.doInConn((conn, args, callback) => {
+        addAllToQueue(conn, channel)
+          .then(getQueue)
+          .then(broadcastQueue)
+          .then(callback)
+          .catch(callback);
+      });
+    });
   }
 });
 
@@ -389,4 +399,18 @@ function checkAdminStatus(conn, channel, adminKey) {
 
 function makeAdmin(conn, channel, sid) {
   return db.query(conn, "UPDATE attendees SET admin = true WHERE channel_id = (SELECT channel_id FROM channels WHERE user_key = ?) AND sid = ?", [channel, sid]);
+}
+
+function addAllToQueue(conn, channel) {
+  return new Promise((resolve, reject) => {
+    conn.query("INSERT INTO queue (attendee_id) (select a.id FROM attendees a where channel_id = (select c.id from channels c where user_key = ?) AND NOT EXISTS (select 1 FROM queue q WHERE q.attendee_id = a.id))",
+      [channel],
+      (error, results, fields) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve([conn, channel]);
+        }
+      });
+  });
 }

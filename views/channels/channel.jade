@@ -22,24 +22,27 @@ block content
           button.btn.btn-primary.btn-block#disconnect(type="submit" disabled) Disconnect
   hr
   .row.justify-content-md-center
-    if admin
-      .col.col-md-3.col-md-offset-3
-        button.btn.btn-secondary.btn-block#hand-up(disabled) Hand Up
-      .col.col-md-3.col-md-offset-3.d-none
-        button.btn.btn-secondary.btn-block#hand-down(disabled) Hand Down
-      .col.col-md-3
-        button.btn.btn-secondary.btn-block#pass-conch(disabled) Pass Conch
-    else
-      .col.col-md-4.col-md-offset-4
-        button.btn.btn-secondary.btn-block#hand-up(disabled) Hand Up
-      .col.col-md-4.col-md-offset-4.d-none
-        button.btn.btn-secondary.btn-block#hand-down(disabled) Hand Down
+    .col.col-md-4.col-md-offset-4
+      button.btn.btn-secondary.btn-block#hand-up(disabled) Hand Up
+    .col.col-md-4.col-md-offset-4.d-none
+      button.btn.btn-secondary.btn-block#hand-down(disabled) Hand Down
   hr
   .row
     .col-7
       h2 Users
       ul.users
     .col-5
+      if admin
+        .btn-group.d-flex(role="group")
+          button.btn.btn-secondary.btn-block#pass-conch(disabled) Pass Conch
+          .btn-group(role="group")
+            button.btn.btn-secondary.dropdown-toggle#other-actions(data-toggle="dropdown" aria-haspopup="true" aria-expanded="false") Other Actions
+            .dropdown-menu.dropdown-menu-right(aria-labelledby="other-actions")
+              a.dropdown-item#add-all(href="#") Add All To Queue
+              a.dropdown-item(href="#") Remove All To Queue
+              a.dropdown-item(href="#") Randomize Queue
+              .dropdown-divider
+              a.dropdown-item(href="#") Delete Channel
       .card
         .card-body
           h5 Conch Holder

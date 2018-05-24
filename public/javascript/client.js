@@ -116,6 +116,13 @@ document.addEventListener("DOMContentLoaded", function(event) {
       socket.emit('pass-conch');
     });
   }
+
+  if (document.getElementById('add-all') !== null) {
+    document.getElementById('add-all').addEventListener('click', function(e) {
+      e.preventDefault();
+      socket.emit('add-all');
+    });
+  }
 });
 
 var timer = {
