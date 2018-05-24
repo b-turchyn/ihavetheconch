@@ -71,7 +71,7 @@ io.on('connection', function(socket) {
       return getConchHolder([conn, channel])
     })
     .then((result) => {
-      io.to(channel).emit('conch-holder', result);
+      socket.emit('conch-holder', result);
     })
     .then(function() {
       callback();
@@ -93,6 +93,7 @@ io.on('connection', function(socket) {
           return getQueue([conn, channel])
         })
         .then(broadcastQueue)
+        // TODO: conch holder changes?
         .then(function() {
           callback()
         })
