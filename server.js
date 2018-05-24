@@ -25,6 +25,7 @@ db.doInConn(function(conn, args, callback) {
 
 var port = normalizePort(process.env.PORT || '3000');
 app.set('port', port);
+app.set('env', process.env.ENV || 'development');
 
 /**
  * Listen on provided port, on all network interfaces.
