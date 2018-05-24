@@ -33,6 +33,8 @@ document.addEventListener("DOMContentLoaded", function(event) {
       if (document.getElementById('pass-conch') !== null) {
         document.getElementById('pass-conch').disabled = false;
       }
+      document.getElementById('other-actions').disabled = false;
+
       document.getElementById('connect').parentElement.classList.add("d-none");
       document.getElementById('connect').disabled = true;
       document.getElementById('disconnect').parentElement.classList.remove("d-none");
@@ -46,6 +48,8 @@ document.addEventListener("DOMContentLoaded", function(event) {
       if (document.getElementById('pass-conch') !== null) {
         document.getElementById('pass-conch').disabled = true;
       }
+      document.getElementById('other-actions').disabled = true;
+
       document.getElementById('disconnect').parentElement.classList.add("d-none");
       document.getElementById('disconnect').disabled = true;
       document.getElementById('connect').parentElement.classList.remove("d-none");
