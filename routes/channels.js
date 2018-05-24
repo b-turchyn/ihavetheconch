@@ -43,9 +43,13 @@ router.get('/:channel', function(req, res, next) {
       .then(function(results) {
         callback();
         if (results['results'].length) {
+          console.log(results['results'][0]['user_key']);
+          console.log(results['results'][0]['admin_key']);
           res.render('channels/channel', {
             title: results['results'][0]['name'],
-            admin: req.cookies[req.params.channel] !== undefined
+            admin: req.cookies[req.params.channel] !== undefined,
+            user_key: "https://" + req.headers.host + "/c/" + results['results'][0]['user_key'],
+            admin_key: "https://" + req.headers.host + "/a/" + results['results'][0]['admin_key']
           });
         } else {
           res.status(404).send('No dice');
