@@ -44,6 +44,7 @@ router.get('/:channel', function(req, res, next) {
         callback();
         if (results['results'].length) {
           res.render('channels/channel', {
+            channel: true,
             title: results['results'][0]['name'],
             admin: req.cookies[req.params.channel] !== undefined,
             user_key: "https://" + req.headers.host + "/c/" + results['results'][0]['user_key'],

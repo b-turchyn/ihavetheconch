@@ -1,5 +1,23 @@
 extends layout
 
 block body
+  nav.navbar.fixed-top.navbar-expand-md.navbar-dark.bg-dark.justify-content-between
+    a.navbar-brand(href="#") Conch
+    .collapse.navbar-collapse.justify-content-end
+      ul.navbar-nav
+        li.nav-item.dropdown
+          a.nav-link.dropdown-toggle(href="#" data-toggle="dropdown")
+            i.fa.fa-share-alt.mr-2
+            span Share
+          .dropdown-menu.dropdown-menu-right.p-4#share-menu
+            .form-group
+              label(for='user-key') Participant Link
+              input.form-control(type="text" id="user-key" value=user_key readonly)
+            if admin
+              .form-group
+                label(for='admin-key') Admin Link
+                input.form-control(type="text" id="admin-key" value=admin_key readonly)
+
+
   .container
     block content
