@@ -19,11 +19,13 @@ block content
         .text-center
           button.btn.btn-primary.btn-block(type="submit") Connect
   hr
-  .row
-    .col.text-center
-      button.btn.btn-secondary(id="hand-up") Hand Up
-      button.btn.btn-secondary(id="hand-down") Hand Down
-      button.btn.btn-secondary(id="pass-conch") Pass Conch
+  .row.justify-content-md-center
+    .col.col-md-3.col-md-offset-3
+      button.btn.btn-secondary.btn-block(id="hand-up") Hand Up
+    .col.col-md-3.d-none
+      button.btn.btn-secondary.btn-block(id="hand-down") Hand Down
+    .col.col-md-3
+      button.btn.btn-secondary.btn-block(id="pass-conch") Pass Conch
   hr
   .row
     .col

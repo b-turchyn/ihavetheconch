@@ -20,10 +20,20 @@ document.addEventListener("DOMContentLoaded", function(event) {
     });
 
     socket.on('queue', function (data) {
+      var queued = false;
       $(".queue").html("");
       data.forEach(function (user) {
+        if (user === socket.id) {
+          document.getElementById('hand-up').parentElement.classList.add('d-none');
+          document.getElementById('hand-down').parentElement.classList.remove('d-none');
+          queued = true;
+        }
         $("<li>").html(users[user]['name']).appendTo($(".queue"));
       });
+      if (!queued) {
+        document.getElementById('hand-up').parentElement.classList.remove('d-none');
+        document.getElementById('hand-down').parentElement.classList.add('d-none');
+      }
     });
 
     socket.on('user-connect', function(data) {

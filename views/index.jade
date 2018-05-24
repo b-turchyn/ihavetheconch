@@ -10,10 +10,21 @@ block content
             p Discourage people from talking over top of each other
     .container
       .row.justify-content-md-center
-        .col.col-md-6
+        .col-md-6.mb-4.mb-md-0
           form(method='POST' action='/c/new')
-            .form-group
+            h3.mb-0 Create Channel
+            small.text-muted I'm about to host a meeting!
+            .form-group.mt-2
               label(for='channel-name') Channel Name
               input.form-control(type='text' id='channel-name' name='channel-name' required)
             .text-center
               button.btn.btn-primary(type='submit') Create Channel
+        .col-md-6
+          form(method='POST' action='/c')
+            h3.mb-0 Join Channel
+            small.text-muted I'm joining a meeting that somebody else is hosting.
+            .form-group.mt-2
+              label(for='user-key') Channel Key
+              input.form-control(type='text' id='user-key' name='user-key' required)
+            .text-center
+              button.btn.btn-secondary(type='submit') Enter Channel

@@ -8,30 +8,40 @@ router.get('/', function(req, res, next) {
   res.redirect('../');
 });
 
+router.post('/', (req, res, next) => {
+  res.redirect('/c/' + req.body['user-key']);
+});
+
 router.get('/new', function(req, res, next) {
-  res.send('New Channel');
+  res.redirect('../../');
 });
 
 router.post('/new', function(req, res, next) {
-  console.log(req.body);
-  console.log(crypto.randomBytes(16).toString('hex').length);
-
   var newChannel = {
     'name': req.body['channel-name'],
     'admin_key': crypto.randomBytes(16).toString('hex'), // Admin key
     'user_key': crypto.randomBytes(16).toString('hex')  // User key
   };
 
-  db.doInConn(function(conn, args, callback) {
-    conn.query('INSERT INTO channels SET ?', newChannel, function(error, results, fields) {
-      if (!error) {
-        console.log(error);
-        console.log(results);
-        console.log(fields);
-        res.redirect('/a/' + newChannel['admin_key']);
-      }
-      callback(error);
+  db.doInConn((conn, args, callback) => {
+    ensureUnique(conn, newChannel, 'admin_key', (results) => {
+      newChannel = results;
+      ensureUnique(conn, newChannel, 'user_key', (results) => {
+        newChannel = results;
+        console.log('About to insert');
+        conn.query('INSERT INTO channels SET ?', newChannel, function(error, results, fields) {
+          console.log('Query ran');
+          if (!error) {
+            console.log(error);
+            console.log(results);
+            console.log(fields);
+            res.redirect('/a/' + newChannel['admin_key']);
+          }
+          callback(error);
+        });
+      });
     });
+
   });
 
 });
@@ -53,3 +63,19 @@ router.get('/:channel', function(req, res, next) {
 
 module.exports = router;
 
+var isDuplicateKey = function(conn, key, callback) {
+  conn.query("SELECT 1 FROM channels WHERE user_key = ? OR admin_key = ? LIMIT 0, 1", [key, key], (error, results, fields) => {
+    callback(results.length > 0);
+  });
+};
+
+var ensureUnique = function(conn, channel_params, key, callback) {
+  isDuplicateKey(conn, channel_params[key], (results) => {
+    if (results) {
+      channel_params[key] = crypto.randomBytes(16).toString('hex');
+      ensureUnique(conn, channel_params, key, callback);
+    } else {
+      callback(channel_params);
+    }
+  });
+};
