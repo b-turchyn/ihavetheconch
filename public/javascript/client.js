@@ -3,10 +3,9 @@ var users = {};
 var conchHolder;
 
 document.addEventListener("DOMContentLoaded", function(event) {
-  if (!Notification) {
-    alert('Desktop notifications not available in your browser. Try Chromium.');
-  }
-  if (Notification.permission !== "granted") {
+  if (typeof Notification === "undefined") {
+    alert('Desktop notifications not available in your browser. Try Chrome or Firefox.');
+  } else if (Notification.permission !== "granted") {
     Notification.requestPermission();
   }
 
@@ -153,13 +152,15 @@ function getTimeDisplay(time) {
 }
 
 var notify = function(msg) {
-  if (Notification.permission !== 'granted') {
-    Notification.requestPermission()
-  } else {
-    var notification = new Notification('Conch - ' + document.getElementsByTagName('title')[0].text, {
-      icon: "https://i.imgur.com/loZX7YP.png",
-      body: "The conch has been passed to you! It's your turn to talk!"
-    });
+  if (typeof Notification !== "undefined" ) {
+    if (Notification.permission !== 'granted') {
+      Notification.requestPermission()
+    } else {
+      var notification = new Notification('Conch - ' + document.getElementsByTagName('title')[0].text, {
+        icon: "https://i.imgur.com/loZX7YP.png",
+        body: "The conch has been passed to you! It's your turn to talk!"
+      });
+    }
   }
 };
 
