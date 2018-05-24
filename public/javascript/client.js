@@ -9,6 +9,14 @@ document.addEventListener("DOMContentLoaded", function(event) {
     Notification.requestPermission();
   }
 
+  document.getElementById('user-key').addEventListener('focus', function() {
+    document.getElementById('user-key').setSelectionRange(0, 1000);
+  });
+
+  document.getElementById('admin-key').addEventListener('focus', function() {
+    document.getElementById('admin-key').setSelectionRange(0, 1000);
+  });
+
   document.getElementById("nameform").addEventListener("submit", function(e) {
     e.preventDefault();
 

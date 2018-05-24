@@ -22,3 +22,7 @@ body {
 #share-menu {
   min-width: 500%;
 }
+
+.btn:disabled {
+  cursor: not-allowed;
+}
