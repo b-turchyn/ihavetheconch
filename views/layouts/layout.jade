@@ -14,12 +14,16 @@ html
   body(class=bodyClass)
     block body
     footer.footer
-      .container.text-muted.text-center
-        a(href="/") Home
-        span.mx-4 |
-        a(href="/about") About
-        span.mx-4 |
-        a(href="/privacy") Privacy
-        span.mx-4 |
-        a(href="/help") Help
-        
+      .container-fluid.text-muted.text-center.justify-content-between
+        .row
+          .col-12.col-lg-4
+          .col-12.col-lg-4
+            a(href="/") Home
+            span.mx-4 |
+            a(href="/about") About
+            span.mx-4 |
+            a(href="/privacy") Privacy
+            span.mx-4 |
+            a(href="/help") Help
+          .col-12.col-lg-4.text-right
+            span Donate: 12gnTnDGYcLodS9D7gV3SzMaWNuiGfYBdq
