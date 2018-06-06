@@ -13,9 +13,11 @@ document.addEventListener("DOMContentLoaded", function(event) {
     document.getElementById('user-key').setSelectionRange(0, 1000);
   });
 
-  document.getElementById('admin-key').addEventListener('focus', function() {
-    document.getElementById('admin-key').setSelectionRange(0, 1000);
-  });
+  if (document.getElementById('admin-key') !== null) {
+    document.getElementById('admin-key').addEventListener('focus', function() {
+      document.getElementById('admin-key').setSelectionRange(0, 1000);
+    });
+  }
 
   document.getElementById("nameform").addEventListener("submit", function(e) {
     e.preventDefault();
