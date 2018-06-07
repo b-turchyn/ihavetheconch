@@ -1,9 +1,18 @@
 extends layout
 
+- inner_page = true
+
 block body
+  - inner_page = true
   nav.navbar.fixed-top.navbar-expand-md.navbar-dark.bg-dark.justify-content-between
     a.navbar-brand(href="/") Conch
-    .collapse.navbar-collapse.justify-content-end
+    button.navbar-toggler(type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle header navigation")
+      span.navbar-toggler-icon
+    .collapse.navbar-collapse.justify-content-between#navbarCollapse
+      ul.navbar-nav
+        a.nav-link(href="/about") About
+        a.nav-link(href="/privacy") Privacy
+        a.nav-link(href="/help") Help
       ul.navbar-nav
         li.nav-item.dropdown
           a.nav-link.dropdown-toggle(href="#" data-toggle="dropdown")

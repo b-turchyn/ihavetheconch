@@ -1,3 +1,8 @@
+html {
+  position: relative;
+  min-height: 100%;
+}
+
 .card {
   background: #eaeaea;
 }
@@ -7,10 +12,10 @@ a {
 }
 
 body {
-  margin-bottom: 60px; /* Margin bottom by footer height */
+  margin-bottom: 80px !important; /* Margin bottom by footer height */
 }
 body.nav {
-  margin-top: 4.5rem;
+  margin-top: 60px;
 }
 .footer {
   position: absolute;

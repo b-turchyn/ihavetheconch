@@ -17,19 +17,19 @@ html
     footer.footer
       .container-fluid.text-muted.text-center.justify-content-between
         .row
-          .col-12.col-lg-4
-          .col-12.col-lg-4
-            a(href="/") Home
-            span.mx-4 |
-            a(href="/about") About
-            span.mx-4 |
-            a(href="/privacy") Privacy
-            span.mx-4 |
-            a(href="/help") Help
-          .col-12.col-lg-4.text-right
+          .col-auto.col-lg-4.offset-lg-4
+            - if (!inner_page)
+              a(href="/") Home
+              span.mx-4 |
+              a(href="/about") About
+              span.mx-4 |
+              a(href="/privacy") Privacy
+          .col.col-lg-4.text-right
             .dropup
-              button.btn.btn-link.dropdown-toggle#donate-dropdown(type="button" data-toggle="dropdown") Donate
-              .dropdown-menu.donate-menu.p-4.mr-1(aria-labelledby="donate-dropdown")
+              button.btn.btn-link.dropdown-toggle#donate-dropdown(type="button" data-toggle="dropdown")
+                span.d-none.d-md-inline Donate
+                i.fa.fa-donate.d-inline.d-md-none
+              .dropdown-menu.dropdown-menu-right.donate-menu.p-4.mr-1(aria-labelledby="donate-dropdown")
                 .form-group
                   label(for='donate-bitcoin') Bitcoin
                   input.form-control(type="text" id="donate-bitcoin" value="12gnTnDGYcLodS9D7gV3SzMaWNuiGfYBdq" readonly)
