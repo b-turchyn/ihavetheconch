@@ -9,6 +9,7 @@ var index = require('./routes/index');
 var users = require('./routes/users');
 var adminChannels = require('./routes/admin_channels');
 var channels = require('./routes/channels');
+var aboutRoutes = require('./routes/about');
 var privacyRoutes = require('./routes/privacy');
 
 var app = express();
@@ -26,6 +27,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', index);
+app.use('/about', aboutRoutes);
 app.use('/privacy', privacyRoutes);
 app.use('/users', users);
 app.use('/a', adminChannels);

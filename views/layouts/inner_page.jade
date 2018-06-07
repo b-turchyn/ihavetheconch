@@ -20,6 +20,9 @@ block body
                   option(value="all") To everyone
                   option(value="me") To me only
                   option(value="none") Never
+              .form-check
+                input.form-check-input#pref-sound-notify(type="checkbox" value="yes")
+                label.form-check-label(for="pref-sound-notify") Play Notification Sound
         li.nav-item.dropdown
           a.nav-link.dropdown-toggle(href="#" data-toggle="dropdown")
             i.fa.fa-share-alt.mr-2

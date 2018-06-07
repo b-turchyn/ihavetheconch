@@ -5,6 +5,7 @@ var conchPrefs = {
   rememberName: true,
   notifyConchPass: "me"
 };
+var audio;
 
 document.addEventListener("DOMContentLoaded", function(event) {
   loadPreferences();
@@ -17,11 +18,18 @@ document.addEventListener("DOMContentLoaded", function(event) {
     getId('pref-conch-pass').addEventListener('change', changeConchNotify);
     changeConchNotify.apply(getId('pref-conch-pass'));
   }
+  if (getId('pref-sound-notify') != null) {
+    getId('pref-sound-notify').addEventListener('click', changeNotifySound);
+    changeNotifySound.apply(getId('pref-sound-notify'));
+  }
 
   if (typeof Notification === "undefined") {
     alert('Desktop notifications not available in your browser. Try Chrome or Firefox.');
   } else if (Notification.permission !== "granted") {
     Notification.requestPermission();
+  }
+  if (typeof Audio !== "undefined") {
+    audio = new Audio("/audio/notification.mp3");
   }
 
   getId('user-key').addEventListener('focus', function() {
@@ -223,6 +231,9 @@ var notify = function(msg) {
         icon: "https://i.imgur.com/loZX7YP.png",
         body: msg
       });
+      if (typeof Audio !== "undefined" && conchPrefs.notifySound) {
+        audio.play();
+      }
     }
   }
 };
@@ -267,6 +278,7 @@ function loadPreferences() {
   conchPrefs.name = conchPrefs.name || "";
   conchPrefs.rememberName = conchPrefs.rememberName !== undefined ? conchPrefs.rememberName : true;
   conchPrefs.notifyConchPass = conchPrefs.notifyConchPass || "me";
+  conchPrefs.notifySound = conchPrefs.notifySound !== undefined ? conchPrefs.notifySound : true;
 
   getId("pref-remember-name").checked = conchPrefs.rememberName;
   if (conchPrefs.rememberName) {
@@ -286,6 +298,11 @@ function changeRememberName(e) {
   } else {
     getId('name').removeEventListener('change', changeName);
   }
+  savePreferences();
+}
+
+function changeNotifySound(e) {
+  conchPrefs.notifySound = this.checked;
   savePreferences();
 }
 
