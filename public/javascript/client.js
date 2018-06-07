@@ -18,6 +18,10 @@ document.addEventListener("DOMContentLoaded", function(event) {
     getId('pref-conch-pass').addEventListener('change', changeConchNotify);
     changeConchNotify.apply(getId('pref-conch-pass'));
   }
+  if (getId('pref-conch-vibrate') != null) {
+    getId('pref-conch-vibrate').addEventListener('change', changeConchVibrate);
+    changeConchVibrate.apply(getId('pref-conch-vibrate'));
+  }
   if (getId('pref-sound-notify') != null) {
     getId('pref-sound-notify').addEventListener('click', changeNotifySound);
     changeNotifySound.apply(getId('pref-sound-notify'));
@@ -229,7 +233,8 @@ var notify = function(msg) {
     } else {
       var notification = new Notification('Conch - ' + document.getElementsByTagName('title')[0].text, {
         icon: "https://i.imgur.com/loZX7YP.png",
-        body: msg
+        body: msg,
+        vibrate: conchPrefs.notifyConchVibrate
       });
       if (typeof Audio !== "undefined" && conchPrefs.notifySound) {
         audio.play();
@@ -278,6 +283,7 @@ function loadPreferences() {
   conchPrefs.name = conchPrefs.name || "";
   conchPrefs.rememberName = conchPrefs.rememberName !== undefined ? conchPrefs.rememberName : true;
   conchPrefs.notifyConchPass = conchPrefs.notifyConchPass || "me";
+  conchPrefs.notifyConchVibrate = conchPrefs.notifyConchVibrate || "me";
   conchPrefs.notifySound = conchPrefs.notifySound !== undefined ? conchPrefs.notifySound : true;
 
   getId("pref-remember-name").checked = conchPrefs.rememberName;
@@ -285,6 +291,7 @@ function loadPreferences() {
     getId('name').value = conchPrefs.name || "";
   }
   getId("pref-conch-pass").value = conchPrefs.notifyConchPass;
+  getId("pref-conch-vibrate").value = conchPrefs.notifyConchVibrate;
 }
 
 function savePreferences() {
@@ -308,6 +315,11 @@ function changeNotifySound(e) {
 
 function changeConchNotify(e) {
   conchPrefs.notifyConchPass = this.value;
+  savePreferences();
+}
+
+function changeConchVibrate(e) {
+  conchPrefs.notifyConchVibrate = this.value;
   savePreferences();
 }
 

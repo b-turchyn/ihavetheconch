@@ -29,6 +29,12 @@ block body
                   option(value="all") To everyone
                   option(value="me") To me only
                   option(value="none") Never
+              .form-group
+                label(for='pref-conch-vibrate') When notifying, vibrate...
+                select.form-control(id="pref-conch-vibrate")
+                  option(value="all") For everyone
+                  option(value="me") For me only
+                  option(value="none") Never
               .form-check
                 input.form-check-input#pref-sound-notify(type="checkbox" value="yes")
                 label.form-check-label(for="pref-sound-notify") Play Notification Sound
