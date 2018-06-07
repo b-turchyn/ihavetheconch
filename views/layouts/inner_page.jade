@@ -7,9 +7,24 @@ block body
       ul.navbar-nav
         li.nav-item.dropdown
           a.nav-link.dropdown-toggle(href="#" data-toggle="dropdown")
+            i.fa.fa-cogs.mr-2
+            span Preferences
+          .dropdown-menu.dropdown-menu-right.share-menu.p-4
+            form
+              .form-check
+                input.form-check-input#pref-remember-name(type="checkbox" value="yes")
+                label.form-check-label(for="pref-remember-name") Remember My Name
+              .form-group
+                label(for='pref-conch-pass') Notify when the conch passes...
+                select.form-control(id="pref-conch-pass")
+                  option(value="all") To everyone
+                  option(value="me") To me only
+                  option(value="none") Never
+        li.nav-item.dropdown
+          a.nav-link.dropdown-toggle(href="#" data-toggle="dropdown")
             i.fa.fa-share-alt.mr-2
             span Share
-          .dropdown-menu.dropdown-menu-right.p-4#share-menu
+          .dropdown-menu.dropdown-menu-right.p-4.share-menu
             .form-group
               label(for='user-key') Participant Link
               input.form-control.share-link(type="text" id="user-key" value=user_key readonly)

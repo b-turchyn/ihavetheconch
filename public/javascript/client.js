@@ -1,8 +1,23 @@
 var socket;
 var users = {};
 var conchHolder;
+var conchPrefs = {
+  rememberName: true,
+  notifyConchPass: "me"
+};
 
 document.addEventListener("DOMContentLoaded", function(event) {
+  loadPreferences();
+  // Hook preferences
+  if (getId('pref-remember-name') != null) {
+    getId('pref-remember-name').addEventListener('click', changeRememberName);
+    changeRememberName.apply(getId('pref-remember-name'));
+  }
+  if (getId('pref-conch-pass') != null) {
+    getId('pref-conch-pass').addEventListener('change', changeConchNotify);
+    changeConchNotify.apply(getId('pref-conch-pass'));
+  }
+
   if (typeof Notification === "undefined") {
     alert('Desktop notifications not available in your browser. Try Chrome or Firefox.');
   } else if (Notification.permission !== "granted") {
@@ -109,8 +124,10 @@ document.addEventListener("DOMContentLoaded", function(event) {
       timer.stopTimer();
       if (data != null && data.length == 2 && data[0] !== null) {
         conchHolder = data[0];
-        if (socket.id === data[0]) {
+        if ((conchPrefs.notifyConchPass === "all" || conchPrefs.notifyConchPass === "me") && socket.id === data[0]) {
           notify("The conch has been passed to you! It's your turn to talk!");
+        } else if (conchPrefs.notifyConchPass === "all") {
+          notify(users[data[0]].name + " has the conch!");
         }
         $(".conch-holder").html(users[data[0]]['name']);
         timer.startTimer(data[1]);
@@ -226,6 +243,59 @@ function getCookie(cname) {
   return "";
 }
 
+function createCookie(name, value, days) {
+  var expires;
+  if (days) {
+    var date = new Date();
+    date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+    expires = "; expires=" + date.toGMTString();
+  }
+  else {
+    expires = "";
+  }
+  document.cookie = name + "=" + value + expires + "; path=/";
+}
+
 function getId(id) {
   return document.getElementById(id);
 }
+
+function loadPreferences() {
+  conchPrefs = JSON.parse(getCookie("preferences") || "{}");
+
+  // Defaults
+  conchPrefs.name = conchPrefs.name || "";
+  conchPrefs.rememberName = conchPrefs.rememberName !== undefined ? conchPrefs.rememberName : true;
+  conchPrefs.notifyConchPass = conchPrefs.notifyConchPass || "me";
+
+  getId("pref-remember-name").checked = conchPrefs.rememberName;
+  if (conchPrefs.rememberName) {
+    getId('name').value = conchPrefs.name || "";
+  }
+  getId("pref-conch-pass").value = conchPrefs.notifyConchPass;
+}
+
+function savePreferences() {
+  createCookie("preferences", JSON.stringify(conchPrefs), 365);
+}
+
+function changeRememberName(e) {
+  conchPrefs.rememberName = this.checked;
+  if (this.checked) {
+    getId('name').addEventListener('change', changeName);
+  } else {
+    getId('name').removeEventListener('change', changeName);
+  }
+  savePreferences();
+}
+
+function changeConchNotify(e) {
+  conchPrefs.notifyConchPass = this.value;
+  savePreferences();
+}
+
+function changeName(e) {
+  conchPrefs.name = getId('name').value;
+  savePreferences();
+}
+

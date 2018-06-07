@@ -27,4 +27,12 @@ html
             span.mx-4 |
             a(href="/help") Help
           .col-12.col-lg-4.text-right
-            span Donate: 12gnTnDGYcLodS9D7gV3SzMaWNuiGfYBdq
+            .dropup
+              button.btn.btn-link.dropdown-toggle#donate-dropdown(type="button" data-toggle="dropdown") Donate
+              .dropdown-menu.donate-menu.p-4.mr-1(aria-labelledby="donate-dropdown")
+                .form-group
+                  label(for='donate-bitcoin') Bitcoin
+                  input.form-control(type="text" id="donate-bitcoin" value="12gnTnDGYcLodS9D7gV3SzMaWNuiGfYBdq" readonly)
+                .form-group
+                  label(for='donate-flattr') Flattr
+                  a.form-control(href="https://flattr.com/@bturchyn" target="_blank") https://flattr.com/@bturchyn
