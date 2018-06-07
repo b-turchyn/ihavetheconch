@@ -9,17 +9,17 @@ document.addEventListener("DOMContentLoaded", function(event) {
     Notification.requestPermission();
   }
 
-  document.getElementById('user-key').addEventListener('focus', function() {
-    document.getElementById('user-key').setSelectionRange(0, 1000);
+  getId('user-key').addEventListener('focus', function() {
+    getId('user-key').setSelectionRange(0, 1000);
   });
 
-  if (document.getElementById('admin-key') !== null) {
-    document.getElementById('admin-key').addEventListener('focus', function() {
-      document.getElementById('admin-key').setSelectionRange(0, 1000);
+  if (getId('admin-key') !== null) {
+    getId('admin-key').addEventListener('focus', function() {
+      getId('admin-key').setSelectionRange(0, 1000);
     });
   }
 
-  document.getElementById("nameform").addEventListener("submit", function(e) {
+  getId("nameform").addEventListener("submit", function(e) {
     e.preventDefault();
 
     if (socket && socket.connected) {
@@ -28,7 +28,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
     }
 
     var query = {
-      name: document.getElementById('name').value,
+      name: getId('name').value,
       room: window.location.pathname.substr(window.location.pathname.lastIndexOf("/") + 1)
     };
     if (getCookie(query['room']).length > 0) {
@@ -38,37 +38,37 @@ document.addEventListener("DOMContentLoaded", function(event) {
     socket = io({ query: query });
 
     socket.on('connect', function() {
-      document.getElementById('hand-up').disabled = false;
-      document.getElementById('hand-down').disabled = false;
-      if (document.getElementById('pass-conch') !== null) {
-        document.getElementById('pass-conch').disabled = false;
+      getId('hand-up').disabled = false;
+      getId('hand-down').disabled = false;
+      if (getId('pass-conch') !== null) {
+        getId('pass-conch').disabled = false;
       }
-      if (document.getElementById('other-actions') !== null) {
-        document.getElementById('other-actions').disabled = false;
+      if (getId('other-actions') !== null) {
+        getId('other-actions').disabled = false;
       }
 
-      document.getElementById('connect').parentElement.classList.add("d-none");
-      document.getElementById('connect').disabled = true;
-      document.getElementById('disconnect').parentElement.classList.remove("d-none");
-      document.getElementById('disconnect').disabled = false;
-      document.getElementById('name').disabled = true;
+      getId('connect').parentElement.classList.add("d-none");
+      getId('connect').disabled = true;
+      getId('disconnect').parentElement.classList.remove("d-none");
+      getId('disconnect').disabled = false;
+      getId('name').disabled = true;
     });
 
     socket.on('disconnect', function() {
-      document.getElementById('hand-up').disabled = true;
-      document.getElementById('hand-down').disabled = true;
-      if (document.getElementById('pass-conch') !== null) {
-        document.getElementById('pass-conch').disabled = true;
+      getId('hand-up').disabled = true;
+      getId('hand-down').disabled = true;
+      if (getId('pass-conch') !== null) {
+        getId('pass-conch').disabled = true;
       }
-      if (document.getElementById('other-actions') !== null) {
-        document.getElementById('other-actions').disabled = true;
+      if (getId('other-actions') !== null) {
+        getId('other-actions').disabled = true;
       }
 
-      document.getElementById('disconnect').parentElement.classList.add("d-none");
-      document.getElementById('disconnect').disabled = true;
-      document.getElementById('connect').parentElement.classList.remove("d-none");
-      document.getElementById('connect').disabled = false;
-      document.getElementById('name').disabled = false;
+      getId('disconnect').parentElement.classList.add("d-none");
+      getId('disconnect').disabled = true;
+      getId('connect').parentElement.classList.remove("d-none");
+      getId('connect').disabled = false;
+      getId('name').disabled = false;
     });
 
     socket.on('queue', function (data) {
@@ -76,15 +76,15 @@ document.addEventListener("DOMContentLoaded", function(event) {
       $(".queue").html("");
       data.forEach(function (user) {
         if (user === socket.id) {
-          document.getElementById('hand-up').parentElement.classList.add('d-none');
-          document.getElementById('hand-down').parentElement.classList.remove('d-none');
+          getId('hand-up').parentElement.classList.add('d-none');
+          getId('hand-down').parentElement.classList.remove('d-none');
           queued = true;
         }
         $("<li>").html(users[user]['name']).appendTo($(".queue"));
       });
       if (!queued) {
-        document.getElementById('hand-up').parentElement.classList.remove('d-none');
-        document.getElementById('hand-down').parentElement.classList.add('d-none');
+        getId('hand-up').parentElement.classList.remove('d-none');
+        getId('hand-down').parentElement.classList.add('d-none');
       }
     });
 
@@ -126,36 +126,36 @@ document.addEventListener("DOMContentLoaded", function(event) {
     });
   });
 
-  document.getElementById('hand-up').addEventListener('click', function() {
+  getId('hand-up').addEventListener('click', function() {
     socket.emit('hand-up');
   });
 
-  document.getElementById('hand-down').addEventListener('click', function() {
+  getId('hand-down').addEventListener('click', function() {
     socket.emit('hand-down');
   });
 
-  if (document.getElementById('pass-conch') !== null) {
-    document.getElementById('pass-conch').addEventListener('click', function() {
+  if (getId('pass-conch') !== null) {
+    getId('pass-conch').addEventListener('click', function() {
       socket.emit('pass-conch');
     });
   }
 
-  if (document.getElementById('add-all') !== null) {
-    document.getElementById('add-all').addEventListener('click', function(e) {
+  if (getId('add-all') !== null) {
+    getId('add-all').addEventListener('click', function(e) {
       e.preventDefault();
       socket.emit('add-all');
     });
   }
 
-  if (document.getElementById('remove-all') !== null) {
-    document.getElementById('remove-all').addEventListener('click', function(e) {
+  if (getId('remove-all') !== null) {
+    getId('remove-all').addEventListener('click', function(e) {
       e.preventDefault();
       socket.emit('remove-all');
     });
   }
 
-  if (document.getElementById('delete-channel') !== null) {
-    document.getElementById('delete-channel').addEventListener('click', function(e) {
+  if (getId('delete-channel') !== null) {
+    getId('delete-channel').addEventListener('click', function(e) {
       e.preventDefault();
       if (confirm("Are you sure? This can not be reversed!")) {
         socket.emit('delete-channel');
@@ -224,4 +224,8 @@ function getCookie(cname) {
     }
   }
   return "";
+}
+
+function getId(id) {
+  return document.getElementById(id);
 }
